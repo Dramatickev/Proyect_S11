@@ -115,4 +115,4 @@ El modelo cumple con el objetivo de alcanzar un F1-score mayor a 0.59.
 
 ## 👤 Autor
 
-Proyecto realizado por [Tu Nombre]
+Proyecto realizado por Kevin Hernandez
