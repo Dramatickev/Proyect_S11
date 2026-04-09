@@ -1,76 +1,118 @@
-# Proyect_S11
-Proyecto Clientes de Beta Bank
-Descripción del proyecto
-Los clientes de Beta Bank se están yendo, cada mes, poco a poco. Los banqueros descubrieron que es más barato salvar a los clientes existentes que atraer nuevos.
+# 🏦 Predicción de abandono de clientes (Churn Prediction)
 
-============================================================
+## 📌 Descripción del proyecto
 
-Necesitamos predecir si un cliente dejará el banco pronto. Tú tienes los datos sobre el comportamiento pasado de los clientes y la terminación de contratos con el banco.
-Crea un modelo con el máximo valor F1 posible. 
-Para aprobar la revisión, necesitas un valor F1 de al menos 0.59. 
-Verifica F1 para el conjunto de prueba. 
+El objetivo de este proyecto es predecir si un cliente abandonará el banco en un futuro cercano. Para ello, se desarrollaron y evaluaron distintos modelos de Machine Learning, buscando maximizar el F1-score debido al desbalance de clases presente en los datos.
 
-Además, debes medir la métrica AUC-ROC y compararla con el valor F1.
+---
 
-==============================================================================
+## 📊 Dataset
 
-================ Instrucciones del proyecto ======================
+El conjunto de datos contiene información de 10,000 clientes, incluyendo variables como:
 
-Descarga y prepara los datos.  
-Explica el procedimiento.
-Examina el equilibrio de clases. 
-Entrena el modelo sin tener en cuenta el desequilibrio. 
-Describe brevemente tus hallazgos.
-Mejora la calidad del modelo. 
-Asegúrate de utilizar al menos dos enfoques para corregir el desequilibrio de clases. 
-Utiliza conjuntos de entrenamiento y validación para encontrar el mejor modelo y el mejor conjunto de parámetros. 
-Entrena diferentes modelos en los conjuntos de entrenamiento y validación. 
-Encuentra el mejor. 
-Describe brevemente tus hallazgos.
-Realiza la prueba final.
+* Edad
+* Score de crédito
+* Balance
+* Número de productos
+* Actividad del cliente
+* Salario estimado
+* País y género
 
-================ Descripción de los datos ========================
+La variable objetivo es:
 
-Puedes encontrar los datos en el archivo  /datasets/Churn.csv file. 
-Descarga el conjunto de datos.
+* `Exited`: indica si el cliente abandonó el banco (1) o no (0)
 
-================ Características =================================
+---
 
-RowNumber: índice de cadena de datos
-CustomerId: identificador de cliente único
-Surname: apellido
-CreditScore: valor de crédito
-Geography: país de residencia
-Gender: sexo
-Age: edad
-Tenure: período durante el cual ha madurado el depósito a plazo fijo de un cliente (años)
-Balance: saldo de la cuenta
-NumOfProducts: número de productos bancarios utilizados por el cliente
-HasCrCard: el cliente tiene una tarjeta de crédito (1 - sí; 0 - no)
-IsActiveMember: actividad del cliente (1 - sí; 0 - no)
-EstimatedSalary: salario estimado
+## ⚙️ Proceso
 
-================ Objetivo =======================================
+### 1. Preparación de datos
 
-Exited: El cliente se ha ido (1 - sí; 0 - no)
+* Eliminación de columnas no relevantes
+* Manejo de valores nulos (imputación en `Tenure`)
+* Codificación de variables categóricas (One-Hot Encoding)
 
-================ Evaluación del proyecto ========================
+---
 
-Hemos definido los criterios de evaluación para el proyecto. 
-Lee esto con atención antes de pasar al ejercicio.
+### 2. Análisis exploratorio
 
-================ Esto es lo que los revisores buscarán cuando evalúen tu proyecto: =========================
+* Identificación de desbalance de clases (~80/20)
+* Análisis de variables relevantes
 
-¿Cómo preparaste los datos para el entrenamiento? 
-¿Procesaste todos los tipos de características?
-¿Explicaste los pasos de preprocesamiento lo suficientemente bien?
-¿Cómo investigaste el equilibrio de clases?
-¿Estudiaste el modelo sin tener en cuenta el desequilibrio de clases?
-¿Qué descubriste sobre la investigación del ejercicio?
-¿Dividiste correctamente los datos en conjuntos?
-¿Cómo trabajaste con el desequilibrio de clases?
-¿Utilizaste al menos dos técnicas para corregir el desequilibrio?
-¿Realizaste correctamente el entrenamiento, la validación y las pruebas finales del modelo?
-¿Qué tan alto es tu valor F1?
-¿Examinaste los valores AUC-ROC?
-¿Mantuviste la estructura del proyecto y el código limpio?
+---
+
+### 3. Modelado
+
+Se probaron distintos enfoques:
+
+#### 🔹 Logistic Regression (baseline)
+
+* F1: ~0.28
+* Bajo desempeño debido al desbalance
+
+#### 🔹 Logistic Regression + class_weight
+
+* F1: ~0.50
+* Mejora significativa
+
+#### 🔹 SMOTE
+
+* No mejoró el modelo
+* Disminuyó el rendimiento en test
+
+#### 🔹 Random Forest
+
+* Mejor desempeño general
+
+---
+
+### 4. Optimización
+
+Se ajustaron hiperparámetros del modelo Random Forest:
+
+* `n_estimators = 300`
+* `max_depth = 10`
+* `class_weight = 'balanced'`
+
+---
+
+## 🏆 Resultados finales
+
+* **Modelo:** Random Forest optimizado
+* **F1-score:** 0.625 ✅
+* **AUC-ROC:** 0.864 🚀
+
+El modelo cumple con el objetivo de alcanzar un F1-score mayor a 0.59.
+
+---
+
+## 📈 Conclusiones
+
+* Logistic Regression no fue suficiente para capturar la complejidad del problema
+* Técnicas como SMOTE no siempre mejoran el rendimiento
+* Random Forest permitió obtener mejores resultados al capturar relaciones no lineales
+
+---
+
+## 🛠️ Tecnologías utilizadas
+
+* Python
+* Pandas
+* NumPy
+* Scikit-learn
+* Imbalanced-learn
+* Jupyter Notebook
+
+---
+
+## 🚀 Próximos pasos
+
+* Despliegue del modelo en una aplicación con Streamlit
+* Visualización de insights en Power BI
+* Mejora del modelo con técnicas más avanzadas
+
+---
+
+## 👤 Autor
+
+Proyecto realizado por [Tu Nombre]
