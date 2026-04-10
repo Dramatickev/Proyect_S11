@@ -1,76 +1,125 @@
-# Proyect_S11
-Proyecto Clientes de Beta Bank
-Descripción del proyecto
-Los clientes de Beta Bank se están yendo, cada mes, poco a poco. Los banqueros descubrieron que es más barato salvar a los clientes existentes que atraer nuevos.
+# 🏦 Predicción de Abandono de Clientes (Churn Prediction)
 
-============================================================
+## 📌 Descripción del Proyecto
 
-Necesitamos predecir si un cliente dejará el banco pronto. Tú tienes los datos sobre el comportamiento pasado de los clientes y la terminación de contratos con el banco.
-Crea un modelo con el máximo valor F1 posible. 
-Para aprobar la revisión, necesitas un valor F1 de al menos 0.59. 
-Verifica F1 para el conjunto de prueba. 
+Este proyecto tiene como objetivo predecir si un cliente abandonará el banco (churn) utilizando técnicas de Machine Learning. A partir de datos históricos sobre el comportamiento de los clientes, se construyó un modelo capaz de identificar a aquellos con mayor probabilidad de abandono.
 
-Además, debes medir la métrica AUC-ROC y compararla con el valor F1.
+El enfoque principal fue maximizar el **F1 Score**, logrando un equilibrio entre precisión y recall, además de evaluar el desempeño mediante la métrica **ROC AUC**.
 
-==============================================================================
+---
 
-================ Instrucciones del proyecto ======================
+## 🎯 Objetivo
 
-Descarga y prepara los datos.  
-Explica el procedimiento.
-Examina el equilibrio de clases. 
-Entrena el modelo sin tener en cuenta el desequilibrio. 
-Describe brevemente tus hallazgos.
-Mejora la calidad del modelo. 
-Asegúrate de utilizar al menos dos enfoques para corregir el desequilibrio de clases. 
-Utiliza conjuntos de entrenamiento y validación para encontrar el mejor modelo y el mejor conjunto de parámetros. 
-Entrena diferentes modelos en los conjuntos de entrenamiento y validación. 
-Encuentra el mejor. 
-Describe brevemente tus hallazgos.
-Realiza la prueba final.
+Desarrollar un modelo de clasificación que permita:
 
-================ Descripción de los datos ========================
+* Identificar clientes con alto riesgo de abandono
+* Optimizar estrategias de retención
+* Mejorar la toma de decisiones del negocio
 
-Puedes encontrar los datos en el archivo  /datasets/Churn.csv file. 
-Descarga el conjunto de datos.
+---
 
-================ Características =================================
+## 📊 Dataset
 
-RowNumber: índice de cadena de datos
-CustomerId: identificador de cliente único
-Surname: apellido
-CreditScore: valor de crédito
-Geography: país de residencia
-Gender: sexo
-Age: edad
-Tenure: período durante el cual ha madurado el depósito a plazo fijo de un cliente (años)
-Balance: saldo de la cuenta
-NumOfProducts: número de productos bancarios utilizados por el cliente
-HasCrCard: el cliente tiene una tarjeta de crédito (1 - sí; 0 - no)
-IsActiveMember: actividad del cliente (1 - sí; 0 - no)
-EstimatedSalary: salario estimado
+El conjunto de datos incluye información relevante de los clientes, como:
 
-================ Objetivo =======================================
+* Datos demográficos (Edad, Género, País)
+* Información financiera (Balance, Salario estimado, Credit Score)
+* Relación con el banco (Antigüedad, Número de productos, Actividad)
 
-Exited: El cliente se ha ido (1 - sí; 0 - no)
+---
 
-================ Evaluación del proyecto ========================
+## ⚙️ Metodología
 
-Hemos definido los criterios de evaluación para el proyecto. 
-Lee esto con atención antes de pasar al ejercicio.
+### 1. Preparación de datos
 
-================ Esto es lo que los revisores buscarán cuando evalúen tu proyecto: =========================
+* Limpieza de datos
+* Codificación de variables categóricas
+* Separación en conjuntos de entrenamiento y prueba
 
-¿Cómo preparaste los datos para el entrenamiento? 
-¿Procesaste todos los tipos de características?
-¿Explicaste los pasos de preprocesamiento lo suficientemente bien?
-¿Cómo investigaste el equilibrio de clases?
-¿Estudiaste el modelo sin tener en cuenta el desequilibrio de clases?
-¿Qué descubriste sobre la investigación del ejercicio?
-¿Dividiste correctamente los datos en conjuntos?
-¿Cómo trabajaste con el desequilibrio de clases?
-¿Utilizaste al menos dos técnicas para corregir el desequilibrio?
-¿Realizaste correctamente el entrenamiento, la validación y las pruebas finales del modelo?
-¿Qué tan alto es tu valor F1?
-¿Examinaste los valores AUC-ROC?
-¿Mantuviste la estructura del proyecto y el código limpio?
+### 2. Análisis del desequilibrio de clases
+
+Se identificó que la clase de clientes que abandonan el banco es minoritaria, lo cual impacta el desempeño del modelo.
+
+### 3. Modelado inicial
+
+Se entrenaron modelos base sin tratar el desequilibrio:
+
+* Regresión Logística
+* Random Forest
+
+### 4. Mejora del modelo
+
+Se aplicaron diferentes estrategias:
+
+* Ajuste del **umbral de decisión (threshold tuning)**
+* Comparación de múltiples modelos
+* Evaluación con métricas enfocadas en clasificación desbalanceada
+
+### 5. Selección del modelo final
+
+El modelo de **Random Forest** presentó el mejor desempeño.
+
+---
+
+## 📈 Resultados
+
+| Métrica   | Valor |
+| --------- | ----- |
+| F1 Score  | 0.61  |
+| ROC AUC   | 0.85  |
+| Precision | 0.59  |
+| Recall    | 0.63  |
+
+✔ Se superó el requisito mínimo de F1 Score (0.59)
+
+---
+
+## 🔍 Insights
+
+* La **edad** es el factor más importante en la predicción de churn.
+* Variables financieras como:
+
+  * Balance
+  * Salario estimado
+  * Credit Score
+    tienen un alto impacto en el abandono.
+* Las variables demográficas tienen menor relevancia.
+
+---
+
+## 🧠 Conclusiones
+
+El modelo desarrollado permite identificar de manera efectiva a los clientes con mayor probabilidad de abandonar el banco. Esto proporciona una herramienta valiosa para implementar estrategias de retención más eficientes y focalizadas.
+
+El uso de métricas como F1 Score y ROC AUC permitió evaluar correctamente el desempeño en un contexto de clases desbalanceadas.
+
+---
+
+## 🚀 Posibles mejoras
+
+* Optimización de hiperparámetros (Grid Search / Random Search)
+* Validación cruzada
+* Implementación en producción (API o aplicación web)
+* Integración con dashboards (Power BI)
+
+---
+
+## 🛠️ Tecnologías utilizadas
+
+* Python
+* Pandas
+* NumPy
+* Scikit-learn
+* Matplotlib / Seaborn
+
+---
+
+## 👨‍💻 Autor
+
+Proyecto desarrollado por Kevin Hernandez
+
+---
+
+## ⭐ Nota
+
+Este proyecto forma parte de un ejercicio de Ciencia de Datos enfocado en problemas reales de negocio en el sector bancario.
