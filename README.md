@@ -1,118 +1,162 @@
-# 🏦 Predicción de abandono de clientes (Churn Prediction)
+# 🏦 Churn Prediction - Beta Bank
 
 ## 📌 Descripción del proyecto
 
-El objetivo de este proyecto es predecir si un cliente abandonará el banco en un futuro cercano. Para ello, se desarrollaron y evaluaron distintos modelos de Machine Learning, buscando maximizar el F1-score debido al desbalance de clases presente en los datos.
+Los clientes de Beta Bank están abandonando el banco de forma progresiva. Dado que retener clientes es más rentable que adquirir nuevos, el objetivo de este proyecto es desarrollar un modelo de **clasificación binaria** que permita predecir si un cliente abandonará el banco.
+
+El modelo se entrena utilizando datos históricos de clientes, incluyendo información demográfica, financiera y de comportamiento.
 
 ---
 
-## 📊 Dataset
+## 🎯 Objetivo
 
-El conjunto de datos contiene información de 10,000 clientes, incluyendo variables como:
+Construir un modelo de machine learning que:
 
-* Edad
-* Score de crédito
-* Balance
-* Número de productos
-* Actividad del cliente
-* Salario estimado
-* País y género
-
-La variable objetivo es:
-
-* `Exited`: indica si el cliente abandonó el banco (1) o no (0)
+- Prediga si un cliente abandonará el banco (`Exited`)
+- Alcance un **F1-score ≥ 0.59**
+- Evalúe también la métrica **AUC-ROC** para medir la capacidad de discriminación del modelo
 
 ---
 
-## ⚙️ Proceso
+## 📊 Descripción de los datos
 
-### 1. Preparación de datos
+El dataset contiene información de 10,000 clientes con las siguientes variables:
 
-* Eliminación de columnas no relevantes
-* Manejo de valores nulos (imputación en `Tenure`)
-* Codificación de variables categóricas (One-Hot Encoding)
-
----
-
-### 2. Análisis exploratorio
-
-* Identificación de desbalance de clases (~80/20)
-* Análisis de variables relevantes
-
----
-
-### 3. Modelado
-
-Se probaron distintos enfoques:
-
-#### 🔹 Logistic Regression (baseline)
-
-* F1: ~0.28
-* Bajo desempeño debido al desbalance
-
-#### 🔹 Logistic Regression + class_weight
-
-* F1: ~0.50
-* Mejora significativa
-
-#### 🔹 SMOTE
-
-* No mejoró el modelo
-* Disminuyó el rendimiento en test
-
-#### 🔹 Random Forest
-
-* Mejor desempeño general
+- **CreditScore**: puntaje crediticio
+- **Geography**: país de residencia
+- **Gender**: género
+- **Age**: edad
+- **Tenure**: años como cliente
+- **Balance**: saldo de la cuenta
+- **NumOfProducts**: productos contratados
+- **HasCrCard**: posee tarjeta de crédito
+- **IsActiveMember**: actividad del cliente
+- **EstimatedSalary**: salario estimado
+- **Exited**: variable objetivo (1 = abandonó, 0 = permanece)
 
 ---
 
-### 4. Optimización
+## ⚙️ Preprocesamiento de datos
 
-Se ajustaron hiperparámetros del modelo Random Forest:
+Se realizaron los siguientes pasos:
 
-* `n_estimators = 300`
-* `max_depth = 10`
-* `class_weight = 'balanced'`
-
----
-
-## 🏆 Resultados finales
-
-* **Modelo:** Random Forest optimizado
-* **F1-score:** 0.625 ✅
-* **AUC-ROC:** 0.864 🚀
-
-El modelo cumple con el objetivo de alcanzar un F1-score mayor a 0.59.
+- Eliminación de variables no informativas:
+    - `RowNumber`, `CustomerId`, `Surname`
+- Codificación de variables categóricas mediante **One-Hot Encoding**
+- Manejo de valores nulos en `Tenure` usando la mediana
+- Estandarización de variables numéricas para mejorar el rendimiento de los modelos
 
 ---
 
-## 📈 Conclusiones
+## 🔀 División de datos
 
-* Logistic Regression no fue suficiente para capturar la complejidad del problema
-* Técnicas como SMOTE no siempre mejoran el rendimiento
-* Random Forest permitió obtener mejores resultados al capturar relaciones no lineales
+El dataset fue dividido en:
+
+- **Entrenamiento**: 60%
+- **Validación**: 20%
+- **Prueba**: 20%
+
+Esto permitió entrenar modelos, ajustar hiperparámetros y evaluar el desempeño final en datos no vistos.
+
+---
+
+## ⚖️ Análisis de desbalance
+
+Se detectó un desbalance en la variable objetivo:
+
+- ~80% clientes que permanecen
+- ~20% clientes que abandonan
+
+Este desbalance puede afectar el rendimiento del modelo, especialmente en la detección de la clase minoritaria.
+
+---
+
+## 🤖 Modelos evaluados
+
+Se entrenaron y compararon los siguientes modelos:
+
+- **Logistic Regression**
+- **Decision Tree**
+- **Random Forest**
+
+Inicialmente se entrenaron sin técnicas de balanceo para establecer una línea base.
+
+---
+
+## ⚖️ Técnicas de balanceo utilizadas
+
+Para mejorar el rendimiento del modelo se aplicaron tres enfoques:
+
+### 1. Ajuste de pesos de clase
+
+Uso de `class_weight='balanced'` para penalizar errores en la clase minoritaria.
+
+### 2. Upsampling
+
+Aumento de la clase minoritaria mediante duplicación de muestras.
+
+### 3. Downsampling
+
+Reducción de la clase mayoritaria para equilibrar el dataset.
+
+---
+
+## 🏆 Selección del modelo final
+
+El mejor desempeño se obtuvo con:
+
+- **Modelo**: Random Forest
+- **Técnica**: Downsampling
+- **Número de estimadores**: 80
+
+Este modelo logró el mejor equilibrio entre precisión y recall.
+
+---
+
+## 📈 Resultados
+
+### 🔹 Conjunto de prueba (TEST)
+
+- **F1-score**: 0.60
+- **AUC-ROC**: 0.85
+
+---
+
+## 📊 Interpretación de métricas
+
+- **F1-score (0.60)**: indica un buen equilibrio entre precisión y recall en la detección de clientes que abandonan.
+- **AUC-ROC (0.85)**: el modelo tiene una alta capacidad para distinguir entre clientes que abandonan y los que permanecen.
+
+---
+
+## 🧠 Conclusiones
+
+El modelo desarrollado permite identificar clientes con alta probabilidad de abandonar el banco, cumpliendo con el objetivo mínimo de desempeño.
+
+El uso de técnicas de balanceo fue clave para mejorar el rendimiento, especialmente en la detección de la clase minoritaria.
+
+Este modelo puede ser utilizado como herramienta de apoyo para diseñar estrategias de retención de clientes, permitiendo actuar de forma preventiva.
+
+---
+
+## 🚀 Posibles mejoras
+
+- Optimización de hiperparámetros (GridSearch / RandomSearch)
+- Ajuste del umbral de clasificación
+- Uso de técnicas más avanzadas de balanceo (ej. SMOTE)
+- Feature engineering
 
 ---
 
 ## 🛠️ Tecnologías utilizadas
 
-* Python
-* Pandas
-* NumPy
-* Scikit-learn
-* Imbalanced-learn
-* Jupyter Notebook
+- Python
+- Pandas
+- Scikit-learn
+- Matplotlib
 
 ---
 
-## 🚀 Próximos pasos
+## 📌 Autor
 
-* Despliegue del modelo en una aplicación con Streamlit
-* Visualización de insights en Power BI
-* Mejora del modelo con técnicas más avanzadas
-
----
-
-## 👤 Autor
-
-Proyecto realizado por Kevin Hernandez
+Proyecto desarrollado por **Kevin Hernandez** como parte de su formación en ciencia de datos.
