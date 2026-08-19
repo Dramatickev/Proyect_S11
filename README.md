@@ -1,162 +1,184 @@
-# 🏦 Churn Prediction - Beta Bank
+# Beta Bank — Predicción de abandono de clientes
 
-## 📌 Descripción del proyecto
+Proyecto de machine learning orientado a identificar clientes con riesgo de abandonar Beta Bank. El análisis combina preparación reproducible de datos, comparación de modelos, validación cruzada y una aplicación interactiva en Streamlit.
 
-Los clientes de Beta Bank están abandonando el banco de forma progresiva. Dado que retener clientes es más rentable que adquirir nuevos, el objetivo de este proyecto es desarrollar un modelo de **clasificación binaria** que permita predecir si un cliente abandonará el banco.
+## Resultado principal
 
-El modelo se entrena utilizando datos históricos de clientes, incluyendo información demográfica, financiera y de comportamiento.
+El mejor desempeño se obtuvo con un **Random Forest ajustado mediante validación cruzada**:
 
----
+| Métrica | Resultado en prueba |
+|---|---:|
+| F1 Score | **0.6219** |
+| ROC AUC | **0.8610** |
 
-## 🎯 Objetivo
+El modelo final integra el preprocesamiento y la clasificación en un único `Pipeline`, por lo que puede recibir registros con la estructura original del dataset y utilizarse directamente desde la aplicación.
 
-Construir un modelo de machine learning que:
+## Problema de negocio
 
-- Prediga si un cliente abandonará el banco (`Exited`)
-- Alcance un **F1-score ≥ 0.59**
-- Evalúe también la métrica **AUC-ROC** para medir la capacidad de discriminación del modelo
+Retener clientes suele ser menos costoso que adquirir nuevos. El objetivo es anticipar qué clientes presentan mayor riesgo de abandono para apoyar la priorización de acciones de retención.
 
----
+La variable objetivo es `Exited`:
 
-## 📊 Descripción de los datos
+- `0`: el cliente permanece.
+- `1`: el cliente abandona el banco.
 
-El dataset contiene información de 10,000 clientes con las siguientes variables:
+El criterio mínimo del proyecto era alcanzar un F1 Score de `0.59`. El modelo final obtuvo `0.6219` sobre un conjunto de prueba que no se utilizó durante el ajuste.
 
-- **CreditScore**: puntaje crediticio
-- **Geography**: país de residencia
-- **Gender**: género
-- **Age**: edad
-- **Tenure**: años como cliente
-- **Balance**: saldo de la cuenta
-- **NumOfProducts**: productos contratados
-- **HasCrCard**: posee tarjeta de crédito
-- **IsActiveMember**: actividad del cliente
-- **EstimatedSalary**: salario estimado
-- **Exited**: variable objetivo (1 = abandonó, 0 = permanece)
+## Datos
 
----
+El dataset contiene **10,000 clientes** y presenta un desbalance relevante en la variable objetivo:
 
-## ⚙️ Preprocesamiento de datos
+- Aproximadamente 79.63% permanece.
+- Aproximadamente 20.37% abandona.
 
-Se realizaron los siguientes pasos:
+Características utilizadas:
 
-- Eliminación de variables no informativas:
-    - `RowNumber`, `CustomerId`, `Surname`
-- Codificación de variables categóricas mediante **One-Hot Encoding**
-- Manejo de valores nulos en `Tenure` usando la mediana
-- Estandarización de variables numéricas para mejorar el rendimiento de los modelos
+- `CreditScore`
+- `Geography`
+- `Gender`
+- `Age`
+- `Tenure`
+- `Balance`
+- `NumOfProducts`
+- `HasCrCard`
+- `IsActiveMember`
+- `EstimatedSalary`
 
----
+Los identificadores `RowNumber`, `CustomerId` y `Surname` se excluyeron del entrenamiento. La variable `Geography` solamente contiene clientes de Francia, Alemania y España; por ello, la aplicación limita las predicciones a esos tres países.
 
-## 🔀 División de datos
+## Metodología
 
-El dataset fue dividido en:
+### 1. División de datos
 
-- **Entrenamiento**: 60%
-- **Validación**: 20%
-- **Prueba**: 20%
+- 80% para entrenamiento.
+- 20% para prueba.
+- División estratificada para conservar la proporción de clases.
 
-Esto permitió entrenar modelos, ajustar hiperparámetros y evaluar el desempeño final en datos no vistos.
+### 2. Preprocesamiento
 
----
+El preprocesamiento se ajusta exclusivamente con los datos de entrenamiento para evitar fuga de información:
 
-## ⚖️ Análisis de desbalance
+- Imputación de variables numéricas mediante la mediana.
+- Imputación de variables categóricas mediante la moda.
+- Estandarización de variables numéricas.
+- One-Hot Encoding con manejo de categorías desconocidas.
 
-Se detectó un desbalance en la variable objetivo:
+### 3. Desbalance y selección del modelo
 
-- ~80% clientes que permanecen
-- ~20% clientes que abandonan
+Se compararon los siguientes enfoques:
 
-Este desbalance puede afectar el rendimiento del modelo, especialmente en la detección de la clase minoritaria.
+- Regresión logística base.
+- Regresión logística con `class_weight='balanced'`.
+- Regresión logística con SMOTE aplicado únicamente al entrenamiento.
+- Ajuste del threshold mediante predicciones out-of-fold.
+- Random Forest base.
+- Random Forest con búsqueda aleatoria de hiperparámetros.
 
----
+La selección de hiperparámetros se realizó mediante `RandomizedSearchCV` con cinco particiones. El conjunto de prueba permaneció intacto hasta la evaluación final.
 
-## 🤖 Modelos evaluados
+## Comparación de modelos
 
-Se entrenaron y compararon los siguientes modelos:
+| Modelo | F1 Score | ROC AUC |
+|---|---:|---:|
+| Random Forest ajustado | **0.6219** | **0.8610** |
+| Random Forest base | 0.6103 | 0.8558 |
+| Regresión logística con SMOTE | 0.5058 | 0.7754 |
+| Logística balanceada + threshold | 0.5038 | 0.7773 |
+| Regresión logística balanceada | 0.5000 | 0.7773 |
+| Regresión logística base | 0.2873 | 0.7749 |
 
-- **Logistic Regression**
-- **Decision Tree**
-- **Random Forest**
+## Aplicación interactiva
 
-Inicialmente se entrenaron sin técnicas de balanceo para establecer una línea base.
+El dashboard de Streamlit incluye dos secciones:
 
----
+### Predicción individual
 
-## ⚖️ Técnicas de balanceo utilizadas
+- Captura de características originales del cliente.
+- Probabilidad estimada de abandono.
+- Clasificación con threshold de `0.50`.
+- Vista de los datos enviados al pipeline.
 
-Para mejorar el rendimiento del modelo se aplicaron tres enfoques:
+### Rendimiento del modelo
 
-### 1. Ajuste de pesos de clase
+- Métricas del modelo final.
+- Comparación interactiva de todos los modelos.
+- Tabla de resultados generada desde el notebook.
+- Resumen de metodología y limitaciones.
 
-Uso de `class_weight='balanced'` para penalizar errores en la clase minoritaria.
+La aplicación carga `churn_pipeline.joblib`, que contiene el preprocesamiento y el Random Forest final, y `model_metrics.csv`, que conserva los resultados calculados por el notebook.
 
-### 2. Upsampling
+## Estructura del proyecto
 
-Aumento de la clase minoritaria mediante duplicación de muestras.
+```text
+Proyect_S11/
+├── app/
+│   └── app.py
+├── data/
+│   └── churn.csv
+├── models/
+│   ├── churn_pipeline.joblib
+│   └── model_metrics.csv
+├── notebooks/
+│   └── beta_bank_churn_analysis.ipynb
+├── .gitignore
+├── README.md
+└── requirements.txt
+```
 
-### 3. Downsampling
+## Ejecución local
 
-Reducción de la clase mayoritaria para equilibrar el dataset.
+Desde la raíz del proyecto, crea y activa un entorno virtual:
 
----
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
 
-## 🏆 Selección del modelo final
+Instala las dependencias:
 
-El mejor desempeño se obtuvo con:
+```powershell
+python -m pip install -r requirements.txt
+```
 
-- **Modelo**: Random Forest
-- **Técnica**: Downsampling
-- **Número de estimadores**: 80
+Inicia la aplicación:
 
-Este modelo logró el mejor equilibrio entre precisión y recall.
+```powershell
+streamlit run app/app.py
+```
 
----
+Streamlit mostrará la dirección local, normalmente `http://localhost:8501`.
 
-## 📈 Resultados
+## Reproducción del análisis
 
-### 🔹 Conjunto de prueba (TEST)
+1. Confirma que `data/churn.csv` esté disponible.
+2. Abre `notebooks/beta_bank_churn_analysis.ipynb`.
+3. Selecciona el kernel del entorno `.venv`.
+4. Reinicia el kernel y ejecuta todas las celdas.
 
-- **F1-score**: 0.60
-- **AUC-ROC**: 0.85
+La última sección del notebook vuelve a generar:
 
----
+- `models/churn_pipeline.joblib`
+- `models/model_metrics.csv`
 
-## 📊 Interpretación de métricas
-
-- **F1-score (0.60)**: indica un buen equilibrio entre precisión y recall en la detección de clientes que abandonan.
-- **AUC-ROC (0.85)**: el modelo tiene una alta capacidad para distinguir entre clientes que abandonan y los que permanecen.
-
----
-
-## 🧠 Conclusiones
-
-El modelo desarrollado permite identificar clientes con alta probabilidad de abandonar el banco, cumpliendo con el objetivo mínimo de desempeño.
-
-El uso de técnicas de balanceo fue clave para mejorar el rendimiento, especialmente en la detección de la clase minoritaria.
-
-Este modelo puede ser utilizado como herramienta de apoyo para diseñar estrategias de retención de clientes, permitiendo actuar de forma preventiva.
-
----
-
-## 🚀 Posibles mejoras
-
-- Optimización de hiperparámetros (GridSearch / RandomSearch)
-- Ajuste del umbral de clasificación
-- Uso de técnicas más avanzadas de balanceo (ej. SMOTE)
-- Feature engineering
-
----
-
-## 🛠️ Tecnologías utilizadas
+## Tecnologías
 
 - Python
-- Pandas
+- Pandas y NumPy
 - Scikit-learn
-- Matplotlib
+- Imbalanced-learn
+- Plotly
+- Streamlit
+- Joblib
+- Jupyter Notebook
+- Git y GitHub
 
----
+## Limitaciones
 
-## 📌 Autor
+- El modelo solamente representa clientes de Francia, Alemania y España.
+- Los datos no incluyen información temporal para evaluar cambios de comportamiento a lo largo del tiempo.
+- La probabilidad estimada no sustituye el criterio comercial ni una estrategia de retención.
+- Antes de utilizar el modelo en producción sería necesario validarlo con datos recientes, revisar su calibración y considerar el costo de falsos positivos y falsos negativos.
 
-Proyecto desarrollado por **Kevin Hernandez** como parte de su formación en ciencia de datos.
+## Autor
+
+Proyecto desarrollado por **Kevin Hernandez** como parte de su formación en Ingeniería en Ciencia de Datos.
