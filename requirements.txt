@@ -74,3 +74,4 @@ uvicorn==0.52.3
 watchdog==6.0.0
 wcwidth==0.8.2
 websockets==16.1.1
+nbformat==5.11.1
